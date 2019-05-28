@@ -5,52 +5,50 @@ import Button from "react-bootstrap/Button";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import uuidv4 from "uuid/v4";
+import severity from "../constants/severity";
+const severityList = Object.entries(severity);
 
 class AddIssue extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      description_value: "",
-      severity_value: "",
-      assigned_value: ""
+      description: "",
+      severity: "1",
+      assigned: "",
+      statuss:"1"// New
     };
     this._addIssue = this._addIssue.bind(this);
     this._textChange = this._textChange.bind(this);
+    //console.log(Object.entries(severity));
   }
-  _addIssue(event) {
-    let issue = {
-      id: 0,
-      description: this.state.description_value,
-      severity:
-        this.state.severity_value === ""
-          ? this.props.severity[0]
-          : this.state.severity_value,
-      assigned: this.state.assigned_value
-    };
-    //console.log("issue:", issue);
-    this.props.addIssue(issue);
+
+  _resetForm() {
+    this.setState({
+      description: "",
+      severity: "1",
+      assigned: "",
+      statuss:"1"
+    });
+  }
+  _addIssue() {
+    const { description, severity, assigned, statuss } = this.state;
+    this.props.addIssue({
+      id: uuidv4(),
+      description,
+      severity,
+      assigned,
+      statuss
+    });
+    this._resetForm();
   }
   _textChange(event) {
-    //console.log(event.target.value);
-    switch (event.target.name) {
-      case "description":
-        this.setState({ description_value: event.target.value });
-        break;
-
-      case "severity":
-        this.setState({ severity_value: event.target.value });
-        break;
-
-      case "assigned":
-        this.setState({ assigned_value: event.target.value });
-        break;
-
-      default:
-    }
-    //console.log(this.state);
+    const { value, name } = event.target;
+    this.setState({ [name]: value });
   }
 
   render() {
+    const { description, severity, assigned, statuss } = this.state;
     return (
       <div>
         <Jumbotron>
@@ -68,6 +66,7 @@ class AddIssue extends Component {
                 <input
                   name="description"
                   type="text"
+                  value={description}
                   onChange={this._textChange}
                   placeholder="Describe the issue ..."
                 />
@@ -82,12 +81,14 @@ class AddIssue extends Component {
                   name="severity"
                   placeholder="select severity"
                   onChange={this._textChange}
+                  value={severity}
                 >
-                  $
-                  {this.props.severity.map((item,index) => {
-                    
-                    return <option value={index} key={index}>{item}</option>;
-
+                  {severityList.map(([key, value]) => {
+                    return (
+                      <option value={key} key={key}>
+                        {value}
+                      </option>
+                    );
                   })}
                 </select>
               </Col>
@@ -99,9 +100,17 @@ class AddIssue extends Component {
               <Col>
                 <input
                   name="assigned"
+                  value={assigned}
                   onChange={this._textChange}
                   type="text"
                   placeholder="Enter responsible ..."
+                />
+                <input
+                  name="statuss"
+                  value={statuss}
+                  onChange={this._textChange}
+                  type="hidden"
+                  
                 />
               </Col>
             </Row>
